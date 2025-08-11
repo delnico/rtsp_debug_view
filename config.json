@@ -1,0 +1,11 @@
+[
+  {
+    "path" : "/tmp/rtsp_debug_mainstream"
+  },
+  {
+    "path" : "/tmp/rtsp_debug_motion_detect"
+  },
+  {
+    "path" : "/tmp/rtsp_debug_human_detect"
+  }
+]
