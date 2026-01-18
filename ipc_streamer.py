@@ -1,17 +1,20 @@
 import threading
 import cv2
-from base64 import b64decode
+import numpy as np
+import zmq
 
 class IPCStreamer:
     def __init__(
         self,
         ipc_path : str,
-        win_name : str = "stream"
+        context : zmq.Context,
+        win_name : str = None,
     ):
         self._enabled = False
         self._ipc_path = ipc_path
-        self._win_name = win_name
+        self._win_name = (win_name if win_name else ipc_path)
         self._thd : threading.Thread = None
+        self._socket = context.socket(zmq.PULL)
 
 
     def start(self):
@@ -25,11 +28,12 @@ class IPCStreamer:
         self._thd = None
 
     def _run(self):
-        with open(self._ipc_path, "r") as f:
-            while self._enabled:
-                frame = b64decode(f.readline())
-                if frame:
-                    cv2.imshow(self._win_name, frame)
-
+        self._socket.bind(self._ipc_path)
+        while self._enabled:
+            data = self._socket.recv()
+            nparr = np.frombuffer(data, np.uint8)
+            frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+            cv2.imshow(self._win_name, frame)
+            cv2.waitKey(1)
         cv2.destroyWindow(self._win_name)
 

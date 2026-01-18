@@ -3,6 +3,7 @@ import sys
 import os
 
 import cv2
+import zmq
 
 from ipc_streamer import IPCStreamer
 
@@ -29,11 +30,10 @@ if __name__ == '__main__':
     paths = parse_config_file(config_file)
 
     workers : list = []
+    zmq_context = zmq.Context()
 
     for path in paths:
-        if not os.path.exists(path):
-            os.mkfifo(path)
-        worker = IPCStreamer(path)
+        worker = IPCStreamer(path, zmq_context)
         workers.append(worker)
         worker.start()
 

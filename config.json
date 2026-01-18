@@ -1,11 +1,11 @@
 [
   {
-    "path" : "/tmp/rtsp_debug_mainstream"
+    "path" : "ipc:///tmp/rtsp_main.zmq"
   },
   {
-    "path" : "/tmp/rtsp_debug_motion_detect"
+    "path" : "ipc:///tmp/rtsp_fgmask.zmq"
   },
   {
-    "path" : "/tmp/rtsp_debug_human_detect"
+    "path" : "ipc:///tmp/video_hdoutput.zmq"
   }
 ]
