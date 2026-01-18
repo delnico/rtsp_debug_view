@@ -1,6 +1,5 @@
 import json
 import sys
-import os
 
 import cv2
 import zmq
@@ -47,4 +46,5 @@ if __name__ == '__main__':
     for worker in workers:
         worker.stop()
 
+    zmq_context.term()
     cv2.destroyAllWindows()
