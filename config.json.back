@@ -1,0 +1,11 @@
+[
+  {
+    "path" : "ipc:///tmp/rtsp_main.zmq"
+  },
+  {
+    "path" : "ipc:///tmp/rtsp_fgmask.zmq"
+  },
+  {
+    "path" : "ipc:///tmp/video_hdoutput.zmq"
+  }
+]

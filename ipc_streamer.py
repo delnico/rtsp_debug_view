@@ -42,7 +42,6 @@ class IPCStreamer:
             5: np.float32,  # CV_32F
             6: np.float64  # CV_64F
         }
-        frame_count = 0
 
         while self._enabled:
             metadata = self._socket.recv(flags=zmq.Flag.SNDMORE)
@@ -58,12 +57,10 @@ class IPCStreamer:
             dtype = dtype_map.get(depth, np.uint8)
 
             frame = np.frombuffer(data, dtype=dtype)
-            frame = frame.reshape((width, height, channels))
+            frame = frame.reshape((height, width, channels))
             cv2.imshow(self._win_name, frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 self._enabled = False
-            frame_count += 1
-            print(f"{self._win_name} - {frame_count}")
 
         cv2.destroyWindow(self._win_name)
 

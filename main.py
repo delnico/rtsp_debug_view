@@ -1,10 +1,13 @@
 import json
+import queue
 import sys
 
 import cv2
 import zmq
 
 from ipc_streamer import IPCStreamer
+
+queues = {}
 
 
 def parse_config_file(path_json_file : str) -> list:
@@ -17,6 +20,7 @@ def parse_config_file(path_json_file : str) -> list:
         path = obj['path']
         if path not in paths:
             paths.append(path)
+            queues[path] = queue.Queue(maxsize=1)
     return paths
 
 
@@ -31,8 +35,8 @@ if __name__ == '__main__':
     workers : list = []
     zmq_context = zmq.Context()
 
-    for path in paths:
-        worker = IPCStreamer(path, zmq_context)
+    for idx, path in enumerate(paths):
+        worker = IPCStreamer(path, zmq_context, f"stream {idx}")
         workers.append(worker)
         worker.start()
 
