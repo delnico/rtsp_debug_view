@@ -1,5 +1,7 @@
+import queue
 import struct
 import threading
+from queue import Queue
 
 import cv2
 import numpy as np
@@ -11,13 +13,13 @@ class IPCStreamer:
         self,
         ipc_path : str,
         context : zmq.Context,
-        win_name : str = None,
+        queue : Queue
     ):
         self._enabled = False
         self._ipc_path = ipc_path
-        self._win_name = (win_name if win_name else ipc_path)
         self._thd : threading.Thread = None
         self._socket = context.socket(zmq.PULL)
+        self._queue = queue
 
 
     def start(self):
@@ -58,9 +60,9 @@ class IPCStreamer:
 
             frame = np.frombuffer(data, dtype=dtype)
             frame = frame.reshape((height, width, channels))
-            cv2.imshow(self._win_name, frame)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                self._enabled = False
-
-        cv2.destroyWindow(self._win_name)
+            try:
+                self._queue.put_nowait(frame)
+            except queue.Full:
+                self._queue.get()
+                self._queue.put(frame)
 
