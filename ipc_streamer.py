@@ -3,12 +3,21 @@ import struct
 import threading
 from queue import Queue
 
-import cv2
 import numpy as np
 import zmq
 
 
 class IPCStreamer:
+    dtype_map = {
+        0: np.uint8,  # CV_8U
+        1: np.int8,  # CV_8S
+        2: np.uint16,  # CV_16U
+        3: np.int16,  # CV_16S
+        4: np.int32,  # CV_32S
+        5: np.float32,  # CV_32F
+        6: np.float64  # CV_64F
+    }
+
     def __init__(
         self,
         ipc_path : str,
@@ -35,15 +44,6 @@ class IPCStreamer:
 
     def _run(self):
         self._socket.bind(self._ipc_path)
-        dtype_map = {
-            0: np.uint8,  # CV_8U
-            1: np.int8,  # CV_8S
-            2: np.uint16,  # CV_16U
-            3: np.int16,  # CV_16S
-            4: np.int32,  # CV_32S
-            5: np.float32,  # CV_32F
-            6: np.float64  # CV_64F
-        }
 
         while self._enabled:
             metadata = self._socket.recv(flags=zmq.Flag.SNDMORE)
@@ -56,7 +56,7 @@ class IPCStreamer:
             channels = metadata[2]
             cv_type = metadata[3]
             depth = cv_type & 7  # Les 3 premiers bits donnent la profondeur
-            dtype = dtype_map.get(depth, np.uint8)
+            dtype = IPCStreamer.dtype_map.get(depth, np.uint8)
 
             frame = np.frombuffer(data, dtype=dtype)
             frame = frame.reshape((height, width, channels))
